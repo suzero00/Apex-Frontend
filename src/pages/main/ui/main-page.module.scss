@@ -1,0 +1,11 @@
+.container {
+	background-color: #1f2125;
+	height: 100%;
+	padding: 16px 24px;
+
+	.greetings {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+	}
+}
