@@ -1,0 +1,33 @@
+.container {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+
+	svg {
+		flex-shrink: 0;
+		color: #ef4444; // Иконки теперь по умолчанию красного цвета
+	}
+
+	.brand {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+
+		h1 {
+			font-size: 14px;
+			font-weight: 600;
+			color: #ffffff; // Белый текст для контраста на темном фоне
+			margin: 0;
+			line-height: 1.2;
+		}
+
+		p {
+			font-size: 11px;
+			font-weight: 400;
+			color: #f87171; // Светло-красный (коралловый) для второстепенного текста
+			margin: 0;
+			line-height: 1.2;
+			opacity: 0.8;
+		}
+	}
+}
