@@ -1,7 +1,7 @@
 import {useNavigate} from 'react-router-dom'
-import s from './not-found-page.module.scss'
+import s from './not-found.module.scss'
 
-export const NotFoundPage = () => {
+export const NotFound = () => {
 	const navigate = useNavigate()
 
 	return (
