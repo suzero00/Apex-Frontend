@@ -8,7 +8,7 @@ import {Header} from '@/widgets/header'
 
 export const MainLayout = () => {
 	return (
-		<div className={s.app}>
+		<div className='app'>
 			<Header />
 			<div className={s.app_wrapper}>
 				<Sidebar />

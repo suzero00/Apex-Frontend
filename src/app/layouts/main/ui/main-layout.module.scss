@@ -1,9 +1,7 @@
-.app {
-	.app_wrapper {
-		display: flex;
+.app_wrapper {
+	display: flex;
 
-		.app_content {
-			flex-grow: 1;
-		}
+	.app_content {
+		flex-grow: 1;
 	}
 }

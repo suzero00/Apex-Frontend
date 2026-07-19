@@ -3,14 +3,21 @@ import s from './sidebar.module.scss'
 import {Landmark, UserRound, LogOut} from 'lucide-react'
 import {PageTitle} from '@/entities/page-title'
 import {Link, useLocation, useNavigate} from 'react-router-dom'
+import {authStore} from '@/shared/store'
 
 export const Sidebar = () => {
 	const pathname = useLocation().pathname
 	const navigate = useNavigate()
 
-	const handleLogout = () => {
-		navigate('/login')
+	const handleLogout = async () => {
+		try {
+			await authStore.logoutAction()
+			navigate('/auth/sign-in')
+			console.log('выход из аккаунта успешен')
+		} catch (error) {}
 	}
+
+	const userName = authStore.user ? `${authStore.user.email}` : 'Гость'
 
 	return (
 		<aside className={s.sidebar}>
@@ -32,7 +39,7 @@ export const Sidebar = () => {
 			</nav>
 
 			<div className={s.features}>
-				<PageTitle icon={<UserRound size={20} />} title='Sultan Tamaev' description='Premium Account' />
+				<PageTitle icon={<UserRound size={20} />} title={userName} description='Premium Account' />
 				<button className={s.logoutBtn} onClick={handleLogout} aria-label='Log out'>
 					<LogOut size={18} />
 				</button>
