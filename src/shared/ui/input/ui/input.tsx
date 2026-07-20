@@ -1,5 +1,6 @@
 import {ChangeEvent, useState} from 'react'
 import {FaRegEye, FaRegEyeSlash} from 'react-icons/fa'
+import {InputErrorIcon} from '@/shared/assets/icons/input_error_icon'
 
 import s from './input.module.scss'
 
@@ -57,7 +58,12 @@ export const InputUi = ({
 					))}
 			</div>
 
-			{error && <span className={s.error}>{error}</span>}
+			{error && (
+				<div className={s.error_wrapper}>
+					<InputErrorIcon size='16' color='#ed1c24' />
+					<span className={s.error}>{error}</span>
+				</div>
+			)}
 		</label>
 	)
 }

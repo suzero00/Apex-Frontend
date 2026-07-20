@@ -32,7 +32,13 @@
 		}
 	}
 
-	.error {
-		color: #ed1c24;
+	.error_wrapper {
+		display: flex;
+		gap: 4px;
+
+		.error {
+			color: #ed1c24;
+			font-size: 14px;
+		}
 	}
 }

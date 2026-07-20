@@ -1,8 +1,29 @@
+$base-blue: #212d53;
+
 .button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	width: 100%;
-	background: #212d53;
-	border-radius: 10px;
 	padding: 16px 24px;
-	font-size: 17px;
+	border: none;
+	border-radius: 10px;
+	background-color: $base-blue;
 	color: #ffffff;
+	font-size: 17px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease-in-out;
+
+	// подсвечиваем слегка при наведении
+	&:hover:not(:disabled) {
+		background-color: lighten($base-blue, 5%);
+	}
+
+	&:disabled {
+		pointer-events: none;
+		opacity: 0.6;
+		background-color: rgba($base-blue, 0.4);
+		color: rgba(255, 255, 255, 0.6);
+	}
 }

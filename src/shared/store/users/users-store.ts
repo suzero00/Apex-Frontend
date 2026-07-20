@@ -4,19 +4,42 @@ import {makeAutoObservable, runInAction} from 'mobx'
 
 class UsersStore {
 	users: User[] = []
+	isLoading = false
 
 	constructor() {
 		makeAutoObservable(this)
 	}
 
 	async getAllUsersAction() {
+		this.isLoading = true
 		try {
 			const data = await getAllUsers()
 			runInAction(() => {
-				this.user = data
+				this.users = data
+				this.isLoading = false
 			})
 			return data
-		} catch (error) {}
+		} catch (error: any) {
+			runInAction(() => {
+				this.isLoading = false
+			})
+
+			if (error.response?.status === 403) {
+				alert(
+					'Доступ запрещен: Для выполнения этого действия требуются права администратора.',
+				)
+				console.log(
+					'Доступ запрещен: Для выполнения этого действия требуются права администратора.',
+				)
+			} else {
+				alert(
+					error.response?.data?.message ||
+						'Произошла ошибка при загрузке пользователей.',
+				)
+			}
+
+			throw error
+		}
 	}
 }
 

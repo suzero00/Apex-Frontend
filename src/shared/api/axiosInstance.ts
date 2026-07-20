@@ -5,7 +5,6 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 	_retry?: boolean
 }
 
-// Теперь очередь хранит новый токен в resolve, чтобы запросы гарантированно обновляли заголовки
 interface FailedRequest {
 	resolve: (token: string) => void
 	reject: (reason: any) => void
@@ -19,9 +18,11 @@ export const api = axios.create({
 
 let isRefreshing = false
 let failedQueue: FailedRequest[] = []
-const REFRESH_URL = '/auth/refresh'
 
-// Раздаем новый токен всем ожидавщим запросам
+const REFRESH_URL = '/auth/refresh'
+const LOGIN_URL = '/auth/sign-in'
+const SIGNUP_URL = '/auth/sign-up'
+
 const processQueue = (error: any | null, token: string | null = null) => {
 	failedQueue.forEach(prom => {
 		if (error) {
@@ -33,7 +34,6 @@ const processQueue = (error: any | null, token: string | null = null) => {
 	failedQueue = []
 }
 
-// 1. Интерцептор запросов
 api.interceptors.request.use(
 	config => {
 		const token = localStorage.getItem('accessToken')
@@ -45,15 +45,17 @@ api.interceptors.request.use(
 	error => Promise.reject(error),
 )
 
-// 2. Интерцептор ответов
 api.interceptors.response.use(
 	response => response,
 	async error => {
 		const originalRequest = error.config as CustomAxiosRequestConfig
 
-		// Проверяем на 401 и убеждаемся, что это не сам запрос рефреша (используем includes для надежности путей)
-		if (error.response?.status === 401 && !originalRequest.url?.includes(REFRESH_URL)) {
-			// Если рефреш уже идет — кладем запрос в очередь
+		const isAuthRoute =
+			originalRequest.url?.includes(REFRESH_URL) ||
+			originalRequest.url?.includes(LOGIN_URL) ||
+			originalRequest.url?.includes(SIGNUP_URL)
+
+		if (error.response?.status === 401 && !isAuthRoute) {
 			if (isRefreshing) {
 				return new Promise<string>((resolve, reject) => {
 					failedQueue.push({
@@ -63,7 +65,6 @@ api.interceptors.response.use(
 					})
 				})
 					.then(token => {
-						// Перед повторным вызовом принудительно заменяем заголовок на свежий
 						if (originalRequest.headers) {
 							originalRequest.headers.Authorization = `Bearer ${token}`
 						}
@@ -79,31 +80,28 @@ api.interceptors.response.use(
 				try {
 					console.log('Attempting to refresh token...')
 
-					// ВАЖНО: Делаем запрос через дефолтный axios, а не через api!
-					// И передаем baseUrl вручную, чтобы не слать протухший accessToken в заголовках.
-					const response = await axios.post<{accessToken: string}>(`${import.meta.env.VITE_API_URL}${REFRESH_URL}`, {}, {withCredentials: true})
+					const response = await axios.post<{accessToken: string}>(
+						`${import.meta.env.VITE_API_URL}${REFRESH_URL}`,
+						{},
+						{withCredentials: true},
+					)
 
 					const newAccessToken = response.data.accessToken
 					console.log('Token refreshed successfully.')
 
-					// Сохраняем новый токен в хранилище
 					localStorage.setItem('accessToken', newAccessToken)
 
-					// Обновляем заголовок для текущего упавшего запроса
 					if (originalRequest.headers) {
 						originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
 					}
 
-					// Пропускаем очередь, передавая им свежий токен
 					processQueue(null, newAccessToken)
 
-					// Повторяем изначальный запрос
 					return api(originalRequest)
 				} catch (refreshError: any) {
 					console.error('Failed to refresh token:', refreshError)
 					processQueue(refreshError, null)
 
-					// Стираем нерабочий токен и уводим на страницу входа
 					localStorage.removeItem('accessToken')
 					if (window.location.pathname !== '/auth/sign-in') {
 						window.location.href = '/auth/sign-in'

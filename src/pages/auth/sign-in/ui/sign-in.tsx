@@ -49,7 +49,7 @@ export const SignIn = observer(() => {
 					type='email'
 					placeholder='Введите email'
 					maxLength={50}
-					disabled={authStore.isLoading}
+					disabled={pending}
 					error={errors.email?.message || error || undefined}
 					{...register('email')}
 				/>
